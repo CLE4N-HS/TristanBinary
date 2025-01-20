@@ -21,13 +21,21 @@ struct Tile
 
 	Tile()
 	{
-		for (int i = COUNT >> 1; i > 0; i >>= 1)
+		for (int i = Type::COUNT >> 1; i > 0; i >>= 1)
 		{
 			entropy |= i;
 		}
 	}
 
 	int entropy{ 0 };
+};
+
+struct Vector2
+{
+	inline Vector2() = default;
+	inline Vector2(size_t _x, size_t _y) : x(_x), y(_y) {}
+	size_t x = 0;
+	size_t y = 0;
 };
 
 class Wave
@@ -41,7 +49,7 @@ public:
 	{
 		int size{ sizeof(T) };
 		uint8_t count{ 0 };
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size * 8; i++)
 		{
 			if (_nb & 1 << i)
 				count++;
@@ -54,7 +62,7 @@ public:
 	{
 		size_t size{ sizeof(T) };
 		std::vector<T> tab;
-		tab.reserve(size);
+		tab.reserve(size * 8);
 		
 		size_t count{ 0 };
 		for (size_t i = 0; i < size * 8; i++)
@@ -69,9 +77,17 @@ public:
 		_data = tab[std::rand() % count];
 	}
 
+	void generate();
+
+	Vector2 getLowestEntropyTile();
+	bool isInMap(Vector2 _i);
+	bool updateNeighbors(Vector2 _i);
+
+	void cout();
 
 private:
 	std::map<Tile::Type, std::array<Node, 4>> m_Rules{};
 	std::vector<std::vector<Tile*>> m_Map{};
+
 
 };
