@@ -87,7 +87,7 @@ Vector2 Wave::getLowestEntropyTile()
 
 bool Wave::isInMap(Vector2 _i)
 {
-	return !(_i.x < 0 && _i.y < 0 && _i.y >= m_Map.size() && _i.x >= m_Map[0].size());
+	return (_i.x >= 0 && _i.y >= 0 && _i.y < m_Map.size() && _i.x < m_Map[0].size());
 }
 
 bool Wave::updateNeighbors(Vector2 _i)
@@ -127,6 +127,7 @@ bool Wave::updateNeighbors(Vector2 _i)
 
 void Wave::cout()
 {
+	std::cout << std::endl;
 	for (size_t y = 0; y < m_Map.size(); y++)
 	{
 		for (size_t x = 0; x < m_Map[y].size(); x++)
