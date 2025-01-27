@@ -108,6 +108,13 @@ public:
 
 	Vector2 getLowestEntropyNode();
 	bool hasStillEntropy();
+	void collapse(Vector2 _i);
+	void updateNodeNeighbors(Vector2 _i);
+	void updateNodePossibilities(Vector2 _i);
+	bool isInNodeMap(Vector2 _i);
+
+	void coutEntropy();
+	void coutCollapsed();
 
 private:
 	std::map<Tile::Type, std::array<Node, 4>> m_Rules{};
