@@ -6,7 +6,27 @@
 
 struct Node
 {
-	int possibilities;
+	uint8_t id{ 0 };
+	uint8_t possibilities{ 0b1111 };
+	uint8_t maxPossibilities{ 4 };
+	uint8_t collapsedValue{ 255 };
+	uint8_t entropy{ 4 };
+
+	Node() = default;
+	Node(uint8_t _id) : id(_id) {}
+
+	inline uint8_t getEntropy() const
+	{
+		uint8_t entropy = 0;
+		for (size_t i = 0; i < maxPossibilities; i++)
+		{
+			if (i << 1)
+			{
+				entropy++;
+			}
+		}
+		return entropy;
+	}
 };
 
 struct Tile
@@ -85,9 +105,19 @@ public:
 
 	void cout();
 
+
+	Vector2 getLowestEntropyNode();
+	bool hasStillEntropy();
+
 private:
 	std::map<Tile::Type, std::array<Node, 4>> m_Rules{};
 	std::vector<std::vector<Tile*>> m_Map{};
 
+	std::vector<std::vector<Node>> m_map;
+	
+	std::array<std::array<uint8_t, 4>, 4> m_rules{ { {0b0000, 0b0001, 0b0001, 0b0001},
+													 {0b0000, 0b0001, 0b0001, 0b0001},
+													 {0b0000, 0b0001, 0b0001, 0b0001},
+													 {0b0000, 0b0001, 0b0001, 0b0001} } };
 
 };

@@ -5,6 +5,18 @@ Wave::Wave()
 	size_t sizeY = 10;
 	size_t sizeX = 10;
 
+	m_map.reserve(sizeY);
+	for (size_t y = 0; y < sizeY; y++)
+	{
+		m_map.push_back(std::vector<Node>());
+		m_map[y].reserve(sizeX);
+		for (size_t x = 0; x < sizeX; x++)
+		{
+			m_map[y].push_back(Node());
+		}
+	}
+
+
 	m_Map.reserve(sizeY);
 	for (size_t y = 0; y < sizeY; y++)
 	{
@@ -137,4 +149,40 @@ void Wave::cout()
 		std::cout << "\n";
 	}
 	std::cout << std::endl;
+}
+
+Vector2 Wave::getLowestEntropyNode()
+{
+	Vector2 index(0, 0);
+	int lowestEntropy = m_map[index.y][index.x].entropy;
+
+	for (size_t y = 0; y < m_map.size(); y++)
+	{
+		for (size_t x = 0; x < m_map[y].size(); x++)
+		{
+			int tmpEntropy = m_map[y][x].entropy;
+			if (tmpEntropy < lowestEntropy)
+			{
+				lowestEntropy = tmpEntropy;
+				index.x = x;
+				index.y = y;
+			}
+		}
+	}
+
+	return index;
+}
+
+bool Wave::hasStillEntropy()
+{
+	for (size_t y = 0; y < m_map.size(); y++)
+	{
+		for (size_t x = 0; x < m_map[y].size(); x++)
+		{
+			if (m_map[y][x].entropy > 0)
+				return true;
+		}
+	}
+
+	return false;
 }
