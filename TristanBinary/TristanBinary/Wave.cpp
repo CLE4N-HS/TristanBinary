@@ -21,15 +21,17 @@ Wave::Wave()
 	{
 		Vector2 current = this->getLowestEntropyNode();
 		this->collapse(current);
-		this->updateNodeNeighbors(current);
+		//this->updateNodeNeighbors(current);
 
-		this->coutEntropy();
+		//this->coutEntropy();
 		this->coutCollapsed();
 	}
 
 	this->coutCollapsed();
 
 	return;
+
+#pragma region initBefore
 
 	m_Map.reserve(sizeY);
 	for (size_t y = 0; y < sizeY; y++)
@@ -70,6 +72,9 @@ Wave::Wave()
 	this->cout();
 	generate();
 	this->cout();
+
+#pragma endregion
+
 }
 
 Wave::~Wave()
@@ -88,6 +93,8 @@ void Wave::generate()
 
 	updateNeighbors(i);
 }
+
+#pragma region before
 
 Vector2 Wave::getLowestEntropyTile()
 {
@@ -151,6 +158,8 @@ bool Wave::updateNeighbors(Vector2 _i)
 	return hasNeighbors;
 }
 
+#pragma endregion
+
 void Wave::cout()
 {
 	std::cout << std::endl;
@@ -171,6 +180,8 @@ Vector2 Wave::getLowestEntropyNode()
 	int lowestEntropy = m_map[index.y][index.x].entropy;
 	lowestEntropy = 256;
 
+	std::vector<Vector2> allIndex{};
+
 	for (size_t y = 0; y < m_map.size(); y++)
 	{
 		for (size_t x = 0; x < m_map[y].size(); x++)
@@ -180,11 +191,21 @@ Vector2 Wave::getLowestEntropyNode()
 				lowestEntropy = m_map[y][x].entropy;
 				index.x = x;
 				index.y = y;
+				allIndex.push_back(index);
+			}
+			else
+			{
+				allIndex.clear();
 			}
 		}
 	}
 
-	return index;
+	if (allIndex.empty())
+	{
+		return index;
+	}
+
+	return (allIndex[rand() % allIndex.size()]);
 }
 
 bool Wave::hasStillEntropy()
@@ -205,7 +226,24 @@ void Wave::collapse(Vector2 _i)
 {
 	if (this->isInNodeMap(_i))
 	{
-		m_map[_i.y][_i.x].collapsedValue = rand() % 4; // TODO
+		Node& node = m_map[_i.y][_i.x];
+
+		std::vector<uint8_t> validOptions;
+		for (uint8_t i = 0; i < 4; i++)
+		{
+			if (node.possibilities & (1 << i))
+				validOptions.push_back(i);
+		}
+
+		if (validOptions.empty())
+		{
+			return;
+		}
+
+		node.collapsedValue = validOptions[rand() % validOptions.size()];
+		node.entropy = 0;
+
+		updateNodeNeighbors(_i);
 	}
 }
 
@@ -236,12 +274,59 @@ void Wave::updateNodeNeighbors(Vector2 _i)
 
 void Wave::updateNodePossibilities(Vector2 _i)
 {
-	m_map[_i.y][_i.x].possibilities &= m_map[_i.y][_i.x].entropy;
+	Node& currentNode = m_map[_i.y][_i.x];
+
+	if (currentNode.entropy == 0)
+	{
+		uint8_t collapsedType = currentNode.collapsedValue;
+
+		Vector2 neighbors[4] = {
+			Vector2(_i.x, _i.y - 1),
+			Vector2(_i.x + 1, _i.y),
+			Vector2(_i.x, _i.y + 1),
+			Vector2(_i.x - 1, _i.y) 
+		};
+
+		for (int dir = 0; dir < 4; dir++)
+		{
+			Vector2 neighborPos = neighbors[dir];
+			if (!isInNodeMap(neighborPos)) continue;
+
+			Node& neighborNode = m_map[neighborPos.y][neighborPos.x];
+
+			if (neighborNode.entropy == 0)
+			{
+				// TODO error violation
+			}
+			else
+			{
+				uint8_t validPossibilities = 0;
+
+				for (uint8_t i = 0; i < 4; i++)
+				{
+					if (isCompatible(collapsedType, i, dir))
+					{
+						validPossibilities |= (1 << i);
+					}
+				}
+
+				neighborNode.possibilities &= validPossibilities;
+				neighborNode.entropy = nbBits(neighborNode.possibilities);
+			}
+		}
+	}
 }
 
 bool Wave::isInNodeMap(Vector2 _i)
 {
 	return (_i.x >= 0 && _i.y >= 0 && _i.y < m_map.size() && _i.x < m_map[0].size());
+}
+
+bool Wave::isCompatible(uint8_t tileType, uint8_t neighborTileType, int direction)
+{
+	uint8_t allowed = m_rules[direction][tileType];
+
+	return (allowed & (1 << neighborTileType)) != 0;
 }
 
 void Wave::coutEntropy()

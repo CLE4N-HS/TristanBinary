@@ -112,6 +112,7 @@ public:
 	void updateNodeNeighbors(Vector2 _i);
 	void updateNodePossibilities(Vector2 _i);
 	bool isInNodeMap(Vector2 _i);
+	bool isCompatible(uint8_t tileType, uint8_t neighborTileType, int direction);
 
 	void coutEntropy();
 	void coutCollapsed();
@@ -122,9 +123,14 @@ private:
 
 	std::vector<std::vector<Node>> m_map;
 	
-	std::array<std::array<uint8_t, 4>, 4> m_rules{ { {0b0000, 0b0001, 0b0001, 0b0001},
-													 {0b0000, 0b0001, 0b0001, 0b0001},
-													 {0b0000, 0b0001, 0b0001, 0b0001},
-													 {0b0000, 0b0001, 0b0001, 0b0001} } };
+	//std::array<std::array<uint8_t, 4>, 4> m_rules{ { {0b0000, 0b0001, 0b0000, 0b0000},
+	//												 {0b1000, 0b0001, 0b0100, 0b1000},
+	//												 {0b1000, 0b0111, 0b0001, 0b1001},
+	//												 {0b0000, 0b0001, 0b0001, 0b0010} } };
+	std::array<std::array<uint8_t, 4>, 4> m_rules{ { {0b1101, 0b1101, 0b1101, 0b1101},
+													 {0b0100, 0b0100, 0b0100, 0b0100}, // North, East, South, West
+													 {0b1101, 0b1101, 0b0010, 0b1101},
+													 {0b1100, 0b1100, 0b1100, 0b1100} } };  // Only 1's below 2's
+
 
 };
