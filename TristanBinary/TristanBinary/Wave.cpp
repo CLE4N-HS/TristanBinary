@@ -18,11 +18,9 @@ Wave::Wave()
 	}
 
 	this->load();
-	this->coutCollapsed();
+	//this->coutCollapsed();
 
-	return;
-
-	if (1) // autoRules
+	if (0) // autoRules
 	{
 		for (size_t j = 0; j < m_rules.size(); j++)
 		{
@@ -32,19 +30,64 @@ Wave::Wave()
 			}
 		}
 
+		for (size_t j = 0; j < m_rules.size(); j++)
+		{
+			for (size_t i = 0; i < m_rules[j].size(); i++)
+			{
+				std::cout << static_cast<int>(m_rules[j][i]) << " ";
+			}
+			std::cout << "\n";
+		}
+
+
 		for (size_t y = 0; y < m_map.size(); y++)
 		{
 			for (size_t x = 0; x < m_map[y].size(); x++)
 			{
-				Vector2 i;
-				if (this->isInMap(Vector2(x, y)))
+				Vector2 i(x, y);
+				Node& c = m_map[y][x];
+				if (this->isInNodeMap(Vector2(x, y - 1)))
 				{
-
+					m_rules[c.collapsedValue][0] |= (1 << m_map[y - 1][x].collapsedValue);
+				}
+				if (this->isInNodeMap(Vector2(x + 1 , y)))
+				{
+					m_rules[c.collapsedValue][1] |= (1 << m_map[y][x + 1].collapsedValue);
+				}
+				if (this->isInNodeMap(Vector2(x , y + 1)))
+				{
+					m_rules[c.collapsedValue][2] |= (1 << m_map[y + 1][x].collapsedValue);
+				}
+				if (this->isInNodeMap(Vector2(x - 1, y)))
+				{
+					m_rules[c.collapsedValue][3] |= (1 << m_map[y][x - 1].collapsedValue);
 				}
 			}
 		}
 
+		std::cout << std::endl;
 
+		for (size_t j = 0; j < m_rules.size(); j++)
+		{
+			for (size_t i = 0; i < m_rules[j].size(); i++)
+			{
+				std::cout << static_cast<int>(m_rules[j][i]) << " ";
+			}
+			std::cout << "\n";
+		}
+
+		m_rules = { { {0b1101, 0b1101, 0b1101, 0b1101},
+					  {0b0100, 0b0100, 0b0100, 0b0100}, // North, East, South, West
+					  {0b1101, 0b1101, 0b0010, 0b1101},
+					  {0b1100, 0b1100, 0b1100, 0b1100} } };  // Only 1's below 2's
+	}
+
+	for (size_t y = 0; y < m_map.size(); y++)
+	{
+		for (size_t x = 0; x < m_map[y].size(); x++)
+		{
+			m_map[y][x].collapsedValue = 255;
+		}
 	}
 
 	while (this->hasStillEntropy())
@@ -58,7 +101,7 @@ Wave::Wave()
 	}
 
 	this->coutCollapsed();
-	this->save();
+	//this->save();
 
 	return;
 
