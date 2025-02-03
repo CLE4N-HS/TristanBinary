@@ -1,4 +1,5 @@
 #include "Wave.h"
+#include <fstream>
 
 Wave::Wave()
 {
@@ -16,6 +17,35 @@ Wave::Wave()
 		}
 	}
 
+	this->load();
+	this->coutCollapsed();
+
+	return;
+
+	if (1) // autoRules
+	{
+		for (size_t j = 0; j < m_rules.size(); j++)
+		{
+			for (size_t i = 0; i < m_rules[j].size(); i++)
+			{
+				m_rules[j][i] = 0;
+			}
+		}
+
+		for (size_t y = 0; y < m_map.size(); y++)
+		{
+			for (size_t x = 0; x < m_map[y].size(); x++)
+			{
+				Vector2 i;
+				if (this->isInMap(Vector2(x, y)))
+				{
+
+				}
+			}
+		}
+
+
+	}
 
 	while (this->hasStillEntropy())
 	{
@@ -28,6 +58,7 @@ Wave::Wave()
 	}
 
 	this->coutCollapsed();
+	this->save();
 
 	return;
 
@@ -191,8 +222,15 @@ Vector2 Wave::getLowestEntropyNode()
 				lowestEntropy = m_map[y][x].entropy;
 				index.x = x;
 				index.y = y;
+				//allIndex.clear();
 				allIndex.push_back(index);
 			}
+			//else if (m_map[y][x].entropy == lowestEntropy && m_map[y][x].collapsedValue >= 255)
+			//{
+			//	index.x = x;
+			//	index.y = y;
+			//	allIndex.push_back(index);
+			//}
 			else
 			{
 				allIndex.clear();
@@ -355,4 +393,39 @@ void Wave::coutCollapsed()
 		std::cout << "\n";
 	}
 	std::cout << std::endl;
+}
+
+void Wave::save()
+{
+	std::ofstream file("../Resources/map.txt");
+
+	for (size_t y = 0; y < m_map.size(); y++)
+	{
+		for (size_t x = 0; x < m_map[y].size(); x++)
+		{
+			file << static_cast<int>(m_map[y][x].collapsedValue) << " ";
+		}
+		file << "\n";
+	}
+
+	file.close();
+}
+
+void Wave::load()
+{
+	std::ifstream file("../Resources/map.txt");
+	std::string a;
+
+	for (size_t y = 0; y < m_map.size(); y++)
+	{
+		for (size_t x = 0; x < m_map[y].size(); x++)
+		{
+			int b;
+			file >> b;
+			m_map[y][x].collapsedValue = b;
+		}
+		file >> a;
+	}
+
+	file.close();
 }

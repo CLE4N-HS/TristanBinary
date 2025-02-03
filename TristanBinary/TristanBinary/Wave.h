@@ -117,6 +117,9 @@ public:
 	void coutEntropy();
 	void coutCollapsed();
 
+	void save();
+	void load();
+
 private:
 	std::map<Tile::Type, std::array<Node, 4>> m_Rules{};
 	std::vector<std::vector<Tile*>> m_Map{};
